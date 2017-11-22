@@ -29,15 +29,18 @@ function [anoise, pnoise, vnoise, truth] = simulate(time_span, time_step, avar, 
     
 
     disp('Generating Simulated Measurement');
-
+    
+    rng(2);
     anoise = truth(:,6:7);
     noise = avar*randn(N,2);
     anoise = anoise + noise - 0.02;
     
+    rng(3);
     pnoise = truth(:,2:3);
     noise = pvar*randn(N,2);
     pnoise = pnoise + noise;
     
+    rng(4);
     vnoise = truth(:,4:5);
     noise = vvar*randn(N,2);
     vnoise = vnoise + noise;

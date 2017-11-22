@@ -1,6 +1,6 @@
 figure
 subplot(311)
-plot(truth(:,1),x_p_corrected(:,3));
+plot(truth(:,1),x_p_corrected(:,3),'Linewidth',1.5);
 hold on
 plot(truth(:,1),x_naive(:,3));
 plot(truth(:,1),truth(:,4),'--')
@@ -25,11 +25,11 @@ legend('K of Position','K of Velocity');
     
 
 figure
-plot(x_p_corrected(:,1),x_p_corrected(:,2));
+plot(x_p_corrected(:,1),x_p_corrected(:,2),'Linewidth',1.5);
 hold on
-plot(x_naive(:,1),x_naive(:,2));
-plot(truth(:,2),truth(:,3),'--');
-plot(p(:,1),p(:,2),'.');
+plot(x_naive(:,1),x_naive(:,2),':','Linewidth',1.5);
+plot(truth(:,2),truth(:,3),'--','color',[.5 .5 .5]);
+plot(p(:,1),p(:,2),'.','Color','k','MarkerSize',0.5);
 title('[P-Correct] Output Position');
-legend('Full EKF','EKF Prediction Only','Ground Truth','EKF Position Measurment')
+legend('Full EKF','EKF Prediction Only','Ground Truth','Position Measurment')
 grid
