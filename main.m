@@ -9,26 +9,35 @@ TIME_STEP = 0.02;
 N = size(truth,1);
 
 % make acceleration more noisy at one point
-gapA1 = fix(N*0.7);
-gapA2 = fix(N*0.8);
+gapA1 = fix(N*0.4);
+gapA2 = fix(N*0.6);
 a = [a1(1:gapA1,:);a2(gapA1+1:gapA2,:);a1(gapA2+1:end,:)];
 
 
 
 
-p = p1;
+%p = p1;
 
 %%% lower the update frequency of velocity
 % make a gap between velocity readings
 hasgapv = true;
 gapV1 = fix(N*0.4);
-gapV2 = fix(N*0.61);
+gapV2 = fix(N*0.6);
 v=zeros(size(v1));
 for i=1:N
     if (mod(i,10) == 0 && (gapV1 > i || gapV2 < i  || ~hasgapv ))
         v(i,:) = v1(i,:);
     else
         v(i,:) = [NaN;NaN];
+    end
+end
+
+p = zeros(size(p1));
+for i=1:N
+    if (mod(i,10) == 0 )
+        p(i,:) = p1(i,:);
+    else
+        p(i,:) = [NaN;NaN];
     end
 end
 
@@ -103,7 +112,7 @@ x_naive = prediction_only(a,N,dt,truth,F,B);
 
 % EKF Constant
 Q = eye(6)*0.0005; % state noise
-R = eye(2)*1;  % measurement noise
+R = eye(2)*4;  % measurement noise
 
 % H matrix  
 H = [1, 0, 0, 0, 0, 0 ;
@@ -114,7 +123,13 @@ P = ones(6,6); % initial covariance
 
 knoise1 = zeros(N,6);
 for i = 2:N
-    [x_next, p_next, k] = EKFupdate(x_p_corrected(i-1,:)',P,Q,R,u(i-1,:)',Z(i,:)',F,B,H,true);
+    
+    if isnan(p(i,1)) 
+        do_update = false;
+    else
+        do_update = true;
+    end
+    [x_next, p_next, k] = EKFupdate(x_p_corrected(i-1,:)',P,Q,R,u(i-1,:)',Z(i,:)',F,B,H,do_update);
     knoise1(i,:) = k(:,1)';
     x_p_corrected(i,:) = x_next';
     P = p_next; 
@@ -123,15 +138,20 @@ correct_with_position_figure
 
 
 %%% USE VELOCITY CORRECTION SIMPLE%%%
-Q = diag(0.0001*[1 1 10 210 0 0]); % diag(0.04*[0.5*dt^2 0.5*dt^2 dt dt 1 1]); % state noise
+Q = 1e-4*[1 0 0 0 0 0;
+          0 1 0 0 0 0;
+          0 0 10 0 0 0;
+          0 0 0 10 0 0;
+          0 0 0 0 0 0;
+          0 0 0 0 0 0]; % diag(0.04*[0.5*dt^2 0.5*dt^2 dt dt 1 1]); % state noise
 R = eye(2);  % measurement noise
 
 % H matrix  
 H = [0, 0, 1, 0, 0, 0 ;
      0, 0, 0, 1, 0, 0];
 Z = v;
-P = eye(6); % initial covariance
-
+P0 = [12.6367203967494,0,0.205239974129699,0,0,0;0,46.6934225534941,0,0.183332709477725,0,0;0.205239974129699,0,0.0993940669565819,0,0,0;0,0.183332709477725,0,0.417277234126774,0,0;0,0,0,0,0,0;0,0,0,0,0,0]; % initial covariance
+P=P0;
 for i = 2:N
     if ( isnan(Z(i,1)) )
         do_update = false;
@@ -158,7 +178,7 @@ R_k = 1;
 H = [0, 0, 1, 0, 0, 0 ;
      0, 0, 0, 1, 0, 0];
 Z = v;
-P = eye(6); % initial covariance
+P = P0; %eye(6); % initial covariance
 knoise2 = zeros(N,6);
 for i = 2:N
     if ( isnan(Z(i,1)) )
@@ -174,9 +194,9 @@ for i = 2:N
     P = p_next; 
     
     if do_update
-        R_k = max(1,R_k/1.5);
+        R_k = max(1,R_k/1.05);
     else
-        R_k = R_k*1.005;
+        R_k = R_k*1.003;
     end
 end
 

@@ -2,11 +2,12 @@ figure
 subplot(311)
 plot(truth(:,1),x_v_corrected(:,3),'Linewidth',1.5);
 hold on
+plot(truth(:,1),x_v_corrected_const(:,3));
 plot(truth(:,1),x_naive(:,3));
 plot(truth(:,1),truth(:,4),'--');
 plot(truth(:,1),v(:,1),'.');
 title('[V-Correct] Output Velocity');
-legend('EKF State V_x','EKF Prediction Only V_x','Ground Truth V_x');
+legend('EKF State V_x','EKF Const V_x','EKF Prediction Only V_x','Ground Truth V_x');
 ylim([-2.5 2.5]);
 
 subplot(312)
