@@ -20,7 +20,7 @@ a = [a1(1:gapA1,:);a2(gapA1+1:gapA2,:);a1(gapA2+1:end,:)];
 
 %%% lower the update frequency of velocity
 % make a gap between velocity readings
-hasgapv = true;
+hasgapv = false;
 gapV1 = fix(N*0.4);
 gapV2 = fix(N*0.6);
 v=zeros(size(v1));
@@ -170,6 +170,12 @@ end
 
 
 %%% USE VELOCITY CORRECTION ADVANCED%%%
+Q = 1e-4*[1 0 0 0 0 0;
+          0 1 0 0 0 0;
+          0 0 10 0 0 0;
+          0 0 0 10 0 0;
+          0 0 0 0 0 0;
+          0 0 0 0 0 0]; 
 %Q = diag(0.0001*[1 1 20 20 0 0]); % diag(0.04*[0.5*dt^2 0.5*dt^2 dt dt 1 1]); % state noise
 R_ref = R;  % measurement noise
 R_k = 1;
