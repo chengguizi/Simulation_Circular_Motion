@@ -20,7 +20,7 @@ a = [a1(1:gapA1,:);a2(gapA1+1:gapA2,:);a1(gapA2+1:end,:)];
 
 %%% lower the update frequency of velocity
 % make a gap between velocity readings
-hasgapv = false;
+hasgapv = true;
 gapV1 = fix(N*0.4);
 gapV2 = fix(N*0.6);
 v=zeros(size(v1));
@@ -138,7 +138,7 @@ correct_with_position_figure
 
 
 %%% USE VELOCITY CORRECTION SIMPLE%%%
-Q = 1e-4*[1 0 0 0 0 0;
+Q = 1e-2*[1 0 0 0 0 0;
           0 1 0 0 0 0;
           0 0 10 0 0 0;
           0 0 0 10 0 0;
@@ -152,6 +152,7 @@ H = [0, 0, 1, 0, 0, 0 ;
 Z = v;
 P0 = [12.6367203967494,0,0.205239974129699,0,0,0;0,46.6934225534941,0,0.183332709477725,0,0;0.205239974129699,0,0.0993940669565819,0,0,0;0,0.183332709477725,0,0.417277234126774,0,0;0,0,0,0,0,0;0,0,0,0,0,0]; % initial covariance
 P=P0;
+knoise3 = zeros(N,6);
 for i = 2:N
     if ( isnan(Z(i,1)) )
         do_update = false;
@@ -162,6 +163,7 @@ for i = 2:N
     [x_next, p_next, k] = EKFupdate(x_v_corrected_const(i-1,:)',P,Q,R,u(i-1,:)',Z(i,:)',F,B,H,do_update);
     
     x_v_corrected_const(i,:) = x_next';
+    knoise3(i,:) = k(:,1)';
     if do_update
         P = p_next; 
     end
